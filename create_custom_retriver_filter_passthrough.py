@@ -2,7 +2,6 @@ import numpy as np
 import inspect
 import os
 
-
 from typing import Any, List, Dict, Union, Optional
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForChainRun,
@@ -21,7 +20,12 @@ from langchain_community.vectorstores.utils import maximal_marginal_relevance
 
 
 class RetrievalQAFilter(RetrievalQA):
-    '''Custom RetrievalQA Chain with filter functionality.'''
+    '''Custom RetrievalQA Chain with filter functionality.
+
+    This class extends the standard RetrievalQA chain to include additional filtering capabilities. It overrides
+    methods to provide support for filtering documents based on custom search keyword arguments (`search_kwargs`)
+    and manages callbacks using a callback manager for both synchronous and asynchronous operations.
+    '''
 
     def _get_docs(
         self,
@@ -30,7 +34,16 @@ class RetrievalQAFilter(RetrievalQA):
         *,
         run_manager: CallbackManagerForChainRun
     ) -> List[Document]:
-        '''Overrided get docs.'''
+        '''Retrieve relevant documents for a given question.
+
+        Args:
+            question (str): The question for which to retrieve relevant documents.
+            search_kwargs (Dict[str, Any], optional): Additional keyword arguments for the search.
+            run_manager (CallbackManagerForChainRun): The callback manager to handle run callbacks.
+
+        Returns:
+            List[Document]: A list of relevant documents retrieved based on the provided question.
+        '''
         # Check if search_kwargs is provided
         if search_kwargs is not None:
             docs = self.retriever._get_relevant_documents(
@@ -44,7 +57,18 @@ class RetrievalQAFilter(RetrievalQA):
         inputs: Dict[str, Any],
         run_manager: CallbackManagerForChainRun = None
     ) -> Dict[str, Any]:
-        '''Overrided call method so we can provide search_kwargs.'''
+        '''Process input and generate an answer using the retrieved documents.
+
+        This method overrides the default call behavior to allow for the inclusion of custom search arguments
+        (`search_kwargs`) and manages the flow of retrieving documents and generating answers.
+
+        Args:
+            inputs (Dict[str, Any]): A dictionary containing input data, including the question and search_kwargs.
+            run_manager (CallbackManagerForChainRun, optional): The callback manager to handle run callbacks.
+
+        Returns:
+            Dict[str, Any]: A dictionary containing the answer and, if applicable, the source documents.
+        '''
         _run_manager = run_manager or CallbackManagerForChainRun.get_noop_manager()
         question = inputs[self.input_key]
         # Get search_kwargs conditions
@@ -74,7 +98,17 @@ class RetrievalQAFilter(RetrievalQA):
         run_manager: AsyncCallbackManagerForChainRun,
         search_kwargs: Optional[Dict[str, Any]] = None,
     ) -> List[Document]:
-        """Get documents to do question answering over."""
+        '''Asynchronously retrieve relevant documents for a given question.
+
+        Args:
+            question (str): The question for which to retrieve relevant documents.
+            run_manager (AsyncCallbackManagerForChainRun): The callback manager to handle asynchronous run callbacks.
+            search_kwargs (Optional[Dict[str, Any]], optional): Additional keyword arguments for the search.
+
+        Returns:
+            List[Document]: A list of relevant documents retrieved based on the provided question.
+        '''
+        pass  # Implementation to be added
 
     async def _acall(
         self,
@@ -82,14 +116,24 @@ class RetrievalQAFilter(RetrievalQA):
         inputs: Dict[str, Any],
         run_manager: Optional[AsyncCallbackManagerForChainRun] = None,
     ) -> Dict[str, Any]:
-        """Run get_relevant_text and llm on input query.
-        If chain has 'return_source_documents' as 'True', returns
-        the retrieved documents as well under the key 'source_documents'.
+        '''Asynchronously process input and generate an answer using the retrieved documents.
+
+        This method handles the asynchronous retrieval of documents and generation of answers,
+        allowing for non-blocking operations in a concurrent environment.
+
+        Args:
+            search_kwargs (Dict[str, Any]): Additional keyword arguments for the search.
+            inputs (Dict[str, Any]): A dictionary containing input data, including the question and search_kwargs.
+            run_manager (Optional[AsyncCallbackManagerForChainRun], optional): The callback manager to handle asynchronous run callbacks.
+
+        Returns:
+            Dict[str, Any]: A dictionary containing the answer and, if applicable, the source documents.
+
         Example:
-        .. code-block:: python
-        res = indexqa({'query': 'This is my query'})
-        answer, docs = res['result'], res['source_documents']
-        """
+            .. code-block:: python
+                res = indexqa({'query': 'This is my query'})
+                answer, docs = res['result'], res['source_documents']
+        '''
         _run_manager = run_manager or AsyncCallbackManagerForChainRun.get_noop_manager()
         question = inputs[self.input_key]
         search_kwargs = inputs.get("search_kwargs", None)
@@ -115,7 +159,12 @@ class RetrievalQAFilter(RetrievalQA):
 
 
 class VectorStoreRetrieverFilter(VectorStoreRetriever):
-    '''Custom vectorstore retriever with filter functionality.'''
+    '''Custom vector store retriever with filter functionality.
+
+    This class provides a customized implementation of a vector store retriever, supporting different types of
+    similarity searches and filtering based on custom search keyword arguments (`search_kwargs`). It supports
+    both synchronous and asynchronous document retrieval.
+    '''
 
     def _get_relevant_documents(
         self,
@@ -124,6 +173,19 @@ class VectorStoreRetrieverFilter(VectorStoreRetriever):
         run_manager: CallbackManagerForRetrieverRun,
         search_kwargs: Optional[Dict[str, Any]] = None,
     ) -> List[Document]:
+        '''Retrieve relevant documents from the vector store based on the query.
+
+        This method supports various types of similarity searches (e.g., similarity, similarity with score threshold,
+        maximal marginal relevance) and allows for customization using `search_kwargs`.
+
+        Args:
+            query (str): The query string for retrieving relevant documents.
+            run_manager (CallbackManagerForRetrieverRun): The callback manager to handle retriever run callbacks.
+            search_kwargs (Optional[Dict[str, Any]], optional): Additional keyword arguments for the search.
+
+        Returns:
+            List[Document]: A list of relevant documents retrieved based on the provided query.
+        '''
         merged_search_kwargs: dict = self.search_kwargs
         if search_kwargs is not None:
             if self.search_kwargs is not None:
@@ -156,6 +218,19 @@ class VectorStoreRetrieverFilter(VectorStoreRetriever):
         run_manager: AsyncCallbackManagerForRetrieverRun,
         search_kwargs: Optional[Dict[str, Any]] = None,
     ) -> List[Document]:
+        '''Asynchronously retrieve relevant documents from the vector store based on the query.
+
+        This method supports asynchronous document retrieval, allowing for non-blocking operations
+        and various types of similarity searches.
+
+        Args:
+            query (str): The query string for retrieving relevant documents.
+            run_manager (AsyncCallbackManagerForRetrieverRun): The callback manager to handle asynchronous retriever run callbacks.
+            search_kwargs (Optional[Dict[str, Any]], optional): Additional keyword arguments for the search.
+
+        Returns:
+            List[Document]: A list of relevant documents retrieved based on the provided query.
+        '''
         merged_search_kwargs: dict = self.search_kwargs
         if search_kwargs is not None:
             if self.search_kwargs is not None:
