@@ -10,7 +10,7 @@ This project contains two main Python scripts that integrate LangChain with Data
    - This script defines custom classes that extend the LangChain functionality. The custom classes, `RetrievalQAFilter` and `VectorStoreRetrieverFilter`, enable the passing of custom metadata filters through to the vector store, allowing for more refined and relevant document retrieval based on specific conditions.
 
 2. **build_rag_chain.py**:
-   - This script uses the custom classes defined in the first script to build and execute a RAG chain. It sets up the environment, retrieves secrets, configures embedding and chat models, and performs retrieval and question answering. The results are logged and stored using MLflow, and the model is registered for future use. Please note that that there might be compatability issues between MLFlow and the custom Langchain class which will lead to serlialisation issues. In this case, it is recommended to serlaise the code as custom mlflow pyfunc module. 
+   - This script uses the custom classes defined in the first script to build and execute a RAG chain. It sets up the environment, retrieves secrets, configures embedding and chat models, and performs retrieval and question answering. The results are logged and stored using MLflow, and the model is registered for future use. Please note that that there might be compatability issues between MLFlow and the custom Langchain class which will lead to serlialisation issues. In this case, it is recommended to serlaise the code as custom [mlflow pyfunc](https://mlflow.org/docs/latest/python_api/mlflow.pyfunc.html) module. 
 
 ## Requirements
 
@@ -24,8 +24,8 @@ This project contains two main Python scripts that integrate LangChain with Data
 
 1. Clone the repository to your local machine:
     ```bash
-    git clone https://github.com/Advanced-Metadata-RAG.git
-    cd Advanced-Metadata-RAG
+    git clone https://github.com/dyanmic_filtering_databricks_vector_store.git
+    cd dyanmic_filtering_databricks_vector_store
     ```
 
 2. Install the required Python packages:
