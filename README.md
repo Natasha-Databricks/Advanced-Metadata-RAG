@@ -24,8 +24,8 @@ This project contains two main Python scripts that integrate LangChain with Data
 
 1. Clone the repository to your local machine:
     ```bash
-    git clone https://github.com/dyanmic_filtering_databricks_vector_store.git
-    cd dyanmic_filtering_databricks_vector_store
+    git clone https://github.com/Advanced-Metadata-RAG.git
+    cd Advanced-Metadata-RAG
     ```
 
 2. Install the required Python packages:
