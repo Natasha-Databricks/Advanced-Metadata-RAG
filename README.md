@@ -81,4 +81,4 @@ The `create_custom_retriever_filter_passthrough.py` script defines two main clas
 client = MlflowClient()
 model_metadata = client.get_latest_versions(model_name, stages=["None"])
 latest_model_version = model_metadata[0].version
-qa_model = mlflow.langchain.load_model(model_metadata[0].source)
+qa_model = mlflow.pyfunc.load_model(model_metadata[0].source)
